@@ -422,6 +422,7 @@ end
 function Prometheus:inc(name, label_names, label_values, value)
   local key = full_metric_name(name, label_names, label_values)
   if value == nil then value = 1 end
+  if type(value) == "string" then value = tonumber(value) end
   if value < 0 then
     self:log_error_kv(key, value, "Value should not be negative")
     return
@@ -477,7 +478,8 @@ function Prometheus:histogram_observe(name, label_names, label_values, value)
   table.insert(l_names, "le")
   table.insert(l_values, "Inf")
   self:inc(name .. "_bucket", l_names, l_values, 1)
-
+  
+  if(type(value) == "string") then value=tonumber(value) end
   local label_count = #l_names
   for _, bucket in ipairs(self.buckets[name]) do
     if value <= bucket then
